@@ -1,0 +1,5 @@
+---
+description: サイト内で表示する用語に関してはすべて多言語対応をしてください。 src/define/language.ts の定義にある場合はそれを使い、なければ新たに追加してインポートするようにしてください。 MultiLanguageTextで定義されているテキストは、src/providers/language-provider.tsx の getLocalizedText を使って、多言語対応した状態で表示するようにしてください。
+globs:
+alwaysApply: true
+---

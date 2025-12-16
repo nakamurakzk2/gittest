@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["http://localhost:3000", "https://alyawmu-ec-next-746157168937.asia-northeast1.run.app", "https://tokken.alyawmu.com/"],
+    "method": ["PUT"],
+    "responseHeader": ["Content-Type"],
+    "maxAgeSeconds": 3600
+  }
+]

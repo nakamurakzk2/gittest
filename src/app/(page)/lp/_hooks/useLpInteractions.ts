@@ -1,0 +1,109 @@
+"use client"
+
+import { useEffect } from "react"
+
+export function useLpInteractions() {
+  useEffect(() => {
+    const body = document.body
+    body.classList.remove('no-js')
+
+    const yearNode = document.querySelector('[data-year]')
+    if (yearNode) yearNode.textContent = String(new Date().getFullYear())
+
+    const subnavLinks = document.querySelectorAll('.subnav__item[href^="#"]')
+    if (subnavLinks.length) {
+      const header = document.querySelector('.site-header')
+      const getOffset = () => (header ? (header as HTMLElement).offsetHeight : 0)
+      const duration = 700
+      const easeInQuad = (t: number) => t * t
+      subnavLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          const hash = link.getAttribute('href')
+          if (!hash || hash.charAt(0) !== '#') return
+          const target = document.querySelector(hash)
+          if (!target) return
+          event.preventDefault()
+          const startY = window.pageYOffset
+          const targetRect = target.getBoundingClientRect()
+          const offset = getOffset()
+          const targetY = targetRect.top + startY - offset
+          let startTime: number | null = null
+          const step = (timestamp: number) => {
+            if (startTime === null) startTime = timestamp
+            const elapsed = timestamp - startTime
+            const progress = Math.min(elapsed / duration, 1)
+            const eased = easeInQuad(progress)
+            window.scrollTo(0, startY + (targetY - startY) * eased)
+            if (progress < 1) requestAnimationFrame(step)
+          }
+          requestAnimationFrame(step)
+          subnavLinks.forEach((item) => item.classList.remove('is-active'))
+          link.classList.add('is-active')
+        })
+      })
+    }
+
+    const agreementToggles = document.querySelectorAll('[data-agreement-toggle]')
+    if (agreementToggles.length) {
+      agreementToggles.forEach((toggle) => {
+        const targetSelector = toggle.getAttribute('data-agreement-toggle')
+        if (!targetSelector) return
+        const target = document.querySelector(targetSelector)
+        if (!target) return
+        toggle.addEventListener('click', () => {
+          const willOpen = target.hasAttribute('hidden')
+          if (willOpen) {
+            target.removeAttribute('hidden')
+          } else {
+            target.setAttribute('hidden', '')
+          }
+          toggle.setAttribute('aria-expanded', String(willOpen))
+          toggle.textContent = willOpen ? '▲' : '▼'
+          const openLabel = toggle.getAttribute('data-label-open')
+          const closeLabel = toggle.getAttribute('data-label-close')
+          if (openLabel && closeLabel) {
+            toggle.setAttribute('aria-label', willOpen ? closeLabel : openLabel)
+          }
+        })
+      })
+    }
+
+    const purchaseSection = document.querySelector('#section-purchase')
+    const purchaseFab = document.querySelector('.purchase-fab')
+    if (purchaseSection && purchaseFab && 'IntersectionObserver' in window) {
+      const purchaseObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            body.classList.add('is-in-purchase')
+          } else {
+            body.classList.remove('is-in-purchase')
+          }
+        })
+      }, {
+        threshold: 0.25
+      })
+      purchaseObserver.observe(purchaseSection)
+    }
+
+    const revealNodes = document.querySelectorAll('[data-reveal]')
+    if (revealNodes.length) {
+      const reveal = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        })
+      }
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(reveal, {
+          threshold: 0.2,
+          rootMargin: '0px 0px -12% 0px'
+        })
+        revealNodes.forEach((node) => observer.observe(node))
+      } else {
+        revealNodes.forEach((node) => node.classList.add('is-visible'))
+      }
+    }
+  }, [])
+}
+
